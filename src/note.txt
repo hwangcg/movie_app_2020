@@ -1,0 +1,216 @@
+node.js 설치 
+    - nodejs.org 다운로드 후 설치
+    - node -v
+
+npm 설치
+    - nodeJS 설치 시 자동 설치
+    - npm -v
+    - npm 버전 업데이트하고 싶은 경우 npm install -g npm 입력
+
+npx 설치
+    - npm install npx -g
+
+git 설치
+    - git-scm.com 다운로드 후 설치
+    - git --version
+
+react 앱 생성
+    - npx create-react-app xxxx_xxxx_2020
+
+앱 실행
+    - npm start
+
+github 생성(저장소 초기화) 및 업로드
+    - github 계정에 repository 생성 (https://github.com/hwangcg/xxxx_xxxx_2020)
+    - git remote add origin https://github.com/hwangcg/xxxx_xxxx_2020
+    - git add .
+    - git commit -m "원하는 어떤 말이라도 넣을 수 있음"
+    - git push origin master
+    
+
+* React만의 html concept - JSX *
+    - ex) 
+        index.js
+        ReactDOM.render(<App />, document.getElementById("potato")); 
+
+        App.js
+        function App() {
+            return (
+               <div>Hello world!</div> 
+            )
+        }
+
+        - <App /> 컴포넌트는 App.js에 정의된 html을 반환하고 이것을 JSX라 부름
+        - JSX로 정의된 태그에는 class가 아닌 className 속성으로 class를 부여함
+        - ReactDOM.render는 유일한 컴포넌트만을 렌더링할 수 있음
+
+
+* everything is component! *
+* Function Component 기본구조 *
+import React from "react";
+function Hwangcg() {
+    return <div>Hello world!</div>
+}
+export default Hwangcg;
+
+
+property-type 설치(JSX에서 넘겨주는 property의 타입 검증)
+    - npm install prop-types
+    - 설치 후 package.json -> dependencies 에서 잘 추가되었는지 확인!
+    - js파일 상단에 'import PropTypes from "prop-types";' 작성 후 사용 가능
+    - ex)
+        <Food name="ramyhun" rating=4.8 spicy=true>
+
+        function Food({ name, rating, spicy }) {
+            return(
+                <div>
+                    <p>This is {name}({rating}). This is {}.</p>
+                </div>
+            )
+        }
+        
+        Food.propTypes = {
+            name: PropTypes.string.isRequired,
+            rating: PropTypes.number.isRequired,
+            spicy: PropTypes.bool.isRequired,
+        }
+ 
+
+
+* Class Component 기본구조 *
+import React from "react";
+class Hwangcg extends React.component{
+    state = {
+        count: 0
+    }
+
+    add = () => {
+        this.setState(current => { count: current.count++ });
+    }
+
+    minus = () => {
+        this.setState(current => { count: current.count-- });
+    }
+
+    render() {
+        return (
+            <div>
+                <h1>The number is: {this.state.count}</h1>
+            </div>
+        );
+    }
+}
+export default Hwangcg;
+
+
+class component 관련
+    - state 를 직접적으로 변경하지 말 것
+    - state 값 변경을 위해서는 setState 메서드를 활용
+    - setState 로 값 변경을 하게 되면 class component 에 속한 render 메서드가 자동으로 실행 -> 변경된 값으로 rendering
+    - setState 로 값 변경 시 현재 값 접근을 위해 current 인자를 넘겨주는 형태로 작성함
+        - ex) 변경 전
+            this.setState({ count: this.state.count-- });
+              변경 후
+            this.setState(current => ({ count: current.count-- }));
+    
+    - componentDidMount() : 컴포넌트가 mount되고 render된 직후에 실행됨
+    - componentDidUpdate() : setState로 컴포넌트의 state가 변경되면 render가 실행된 후 componentDidUpdate가 실행됨
+    - componentWillUnmount() : 컴포넌트가 죽는 시점에 실행됨
+
+
+axios
+    - npm install axios
+    - import axios from "axios"
+    - ex)
+        getMovies = async () => {
+            // 구조 분해 할당. object.data.data.movies 로 받아짐
+            const {
+                data: {
+                    data: { movies }
+                }
+            } = await axios.get("https://yts-proxy.now.sh/list_movies.json?sort_by=rating");
+
+            // state에 있는 movies 와 내부에서 구조 분해 할당 받은 movies의 변수명이 같기에 movies만 적어줘도 됨
+            this.setState({ movies, isLoading: false });
+        }
+        componentDidMount() {
+            this.getMovies();
+        }
+
+
+github 배포
+    - npm install gh-pages
+    - git remote -v : 프로젝트 위치
+        ex) http://github.com/hwangcg/movie_app_2020
+    - package.json 수정 
+        "homepage": "https://hwangcg.github.io/movie_app_2020" -> 홈페이지 주소 추가
+        "script" : {
+            "predeploy": "npm run build",   -> deploy 실행 전 명령. 최적화 된 파일이 build 폴더에 생성됨
+            "deploy": "gh-pages -d build"   -> github 저장소에 build된 폴더를 배포함. gh-pages를 통해 저장소를 웹 페이지 형식으로 볼 수 있음
+        }
+    - npm run deploy : 배포
+    - 배포 후 "homepage" 에 적힌 주소에 가면 배포된 웹을 확인할 수 있음
+
+
+
+Navigation 관련
+    - react-router-dom : 네비게이션을 만들 수 있게 해주는 패키지
+        npm install react-router-dom
+    - router는 url에 접근해서 불러올 컴포넌트를 결정함
+    - import { HashRouter, Route } from "react-router-dom";  -> react-router-dom 에는 몇가지 router가 존재함. ex) BrowserRouter : url에 '#/' 부분이 없으나 gh-pages에서 정확한 설정이 까다로움
+    - ex) index나 app등의 상위 컴포넌트에서 처리함
+        function App() {
+            return (
+                <HashRouter>
+                    <Route path="/" exact={true} component={Home} />    // exact={true} : path가 정확히 일치할때만 해당 component를 로드함
+                </HashRouter>
+            )
+        }
+    - Navigation을 컴포넌트화 -> index나 app컴포넌트에서 불러오면 모든 페이지에 적용가능
+        ex) import { Link } from "react-router-dom";
+            function Navigation() {
+                return (
+                    <div>
+                        <Link to="/">Home</Link>
+                        <Link to="/about">About</Link>
+                    </div>
+                )
+            }
+            export default Navigation;
+    - Link는 Router 컴포넌트에 포함되어 있어야 함
+        ex) 위에서 작성한 Link가 제대로 동작하기 위해서는
+            <HashRouter>
+                <Navigation />
+            </HashRouter>
+            이러한 구조가 되어야 함
+    - Link의 to 속성에는 오브젝트 형태로 인자가 전달 가능함
+        ex) <Link to={{ pathname: "/blahblah", key: data }}>
+
+
+
+
+
+
+* CheckPoint *
+- 구조 분해 할당
+- state
+- propTypes
+- function 컴포넌트와 class 컴포넌트의 구분
+- router, 다른 navigation 구현 방식 없는지?
+
+
+* !!!!! Caution !!!!! *
+1. 공부만 하지 말고, 뭐라도 만들어라!
+    - 계산기, 슬라이드, 탭, 메뉴트리 등등등.....
+
+2. 아직 준비가 덜 됏다는 생각은 버리고, 일단 만들어라!
+
+3. 되도록 매일 매일 프로그래밍 하라. 번아웃 경계! 프로그래밍을 즐겨라!
+
+4. 체크리스트만 보면서 공부하지 마라. 
+    - 공부를 위한 체크리스트는 버릴 것
+    - 만들고 싶은 것들의 체크리스트는 유익! 챗봇, 유튜브 클론, 게임 등등등...
+
+5. 데드라인 없이 공부하지 마라.
+    = 데드라인이 없으면 압박도 없고, 스스로의 통제가 어렵기 때문에 
+      반드시 데드라인을 정하고 스스로를 채찍질하며 열심히 공부하라!
